@@ -56,11 +56,11 @@ const findNodesRulesByPath = (path, schema, inheritance) => {
                 break;
             }
 
-            error = `The file is not described in the schema. In ${
+            error = `The file is not described in the schema. In "${
                 successfulPartsPathArray.length === 0
                     ? 'root'
                     : successfulPartsPathArray.join('/')
-            } expected a node ${pathItem}`;
+            }" expected a node "${pathItem}"`;
 
             break;
         }
@@ -79,7 +79,7 @@ const findNodesRulesByPath = (path, schema, inheritance) => {
 
     if (!rules) {
         return {
-            error: `There is no set of rules in the ${successfulPartsPathArray.join('/')}`,
+            error: `There is no set of rules in the "${successfulPartsPathArray.join('/')}"`,
         };
     }
 

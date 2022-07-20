@@ -1,6 +1,21 @@
 {
   "name": "eslint-plugin-structural-police",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
-  "description": "eslint plugin to control file structure and imports"
+  "description": "eslint plugin to control file structure and imports",
+  "author": {
+    "name": "Anton Semenov",
+    "email": "tontoncher@yandex.ru"
+  },
+  "keywords": [
+    "structure",
+    "feature",
+    "sliced",
+    "import",
+    "control"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tontoncher/structural-police.git"
+  }
 }
