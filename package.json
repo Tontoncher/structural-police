@@ -14,6 +14,7 @@
     "import",
     "control"
   ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Tontoncher/structural-police.git"
