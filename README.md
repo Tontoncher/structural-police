@@ -2,6 +2,8 @@
 eslint plugin structural-police
 
 # **Установка**
+npm i eslint-plugin-structural-police
+
 Для установки локального модуля structural-police сделай npm add --dev file:<путь_до_structural-police>
 
 # **Настройка**
@@ -72,7 +74,7 @@ __rules__: {
     ],
 },
 ```
-Логика проверки путей работает таким образом, что она подставит вместо `__var__` переменных узлы,
+Логика проверки путей работает таким образом, что она вместо `__var__` переменных подставит узлы,
 из пути проверяемого файла. То есть находясь в файле `apps/app-a/featuers/index.ts`
 переменная __var__similar_apps, используемая в правилах будет заменена на `app-a`, а
 находясь в `apps/app-b/featuers/index.ts` - на `app-b`.

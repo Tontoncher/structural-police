@@ -1,5 +1,6 @@
 {
   "name": "eslint-plugin-structural-police",
   "version": "1.0.0",
-  "main": "index.js"
+  "main": "index.js",
+  "description": "eslint plugin to control file structure and imports"
 }
