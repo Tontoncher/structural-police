@@ -1,12 +1,7 @@
 const __any__ = true;
 
-// Your custom schema
 module.exports = {
-    __rules__: {
-        defaultAllowed: true,
-    },
     apps: {
-        'app-core': { __any__ },
         __var__appName: {
             __rules__: {
                 defaultAllowed: false,
