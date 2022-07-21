@@ -1,5 +1,6 @@
 ## 1.0.2 (2022--)
 
+- Доработан README.md
 - Добавлена конфигурация "featureSliced"
 - Добавлен CHANGELOG.md
 

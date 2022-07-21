@@ -1,10 +1,32 @@
+[RU](https://github.com/Tontoncher/structural-police/blob/master/README.md) | [EN](https://github.com/Tontoncher/structural-police/blob/master/README-en.md)
+
 # **structural-police**
 eslint plugin to control file structure and imports
 
 # **Install**
 npm i eslint-plugin-structural-police
 
-# **Настройка**
+# **Quick start**
+```
+// .eslintrc.[js|yml|json]
+
+{
+    "plugins": [
+        // ... some of your plugins
+        "structural-police"
+    ],
+    "extends": [
+        // ... some of your plugin configs
+        
+        // one of the configs
+        "plugin:structural-police/recommended"
+        // or
+        "plugin:structural-police/featureSliced"
+    ],
+}
+```
+
+# **Setting**
 Rule `import-permission-schema` takes 4 arguments:
 
 1. `schema`:_object_ - Import validation scheme (more details in "Scheme")

@@ -1,8 +1,30 @@
+[RU](https://github.com/Tontoncher/structural-police/blob/master/README.md) | [EN](https://github.com/Tontoncher/structural-police/blob/master/README-en.md)
+
 # **structural-police**
 eslint plugin для контроля структуры файлов и импортов
 
 # **Установка**
 npm i eslint-plugin-structural-police
+
+# **Быстрый старт**
+```
+// .eslintrc.[js|yml|json]
+
+{
+    "plugins": [
+        // ... какие-то твои плагины
+        "structural-police"
+    ],
+    "extends": [
+        // ... какие-то твои конфиги плагинов
+        
+        // один из конфигов
+        "plugin:structural-police/recommended"
+        // или
+        "plugin:structural-police/featureSliced"
+    ],
+}
+```
 
 # **Настройка**
 Правило `import-permission-schema` принимает 4 аргумента:

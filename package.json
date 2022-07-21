@@ -12,11 +12,13 @@
     "feature",
     "sliced",
     "import",
-    "control"
+    "control",
+    "eslint",
+    "plugin"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Tontoncher/structural-police.git"
+    "url": "git+https://github.com/tontoncher/structural-police.git"
   }
 }
