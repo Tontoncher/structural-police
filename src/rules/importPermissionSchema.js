@@ -8,7 +8,7 @@ const {
 module.exports = (context) => {
     const projectPath = context.getCwd();
     const filePath = context.getFilename().substr(projectPath.length + 1);
-    const { schema, inheritance, entryPoints, everywhereAllowed } = context.options[0];
+    const { schema = {}, inheritance = true, entryPoints = ['src'], everywhereAllowed = [] } = context.options[0];
     const nodesRules = findNodesRulesByPath(filePath, schema, inheritance);
     let isFileError = false;
     let fileRules = {};

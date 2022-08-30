@@ -9,7 +9,7 @@ module.exports = {
                 'structural-police/no-default-export': 1,
                 'structural-police/import-permission-schema': [
                     2,
-                    { schema: defaultSchema, inheritance: true, entryPoints: ['apps'] },
+                    { schema: defaultSchema },
                 ],
             },
         },
@@ -18,7 +18,7 @@ module.exports = {
                 'structural-police/no-default-export': 1,
                 'structural-police/import-permission-schema': [
                     2,
-                    { schema: featureSlicedSchema, inheritance: true, entryPoints: ['apps'] },
+                    { schema: featureSlicedSchema },
                 ],
             },
         },
