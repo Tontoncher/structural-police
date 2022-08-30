@@ -1,1 +1,5 @@
-module.exports = require('./src');
+try {
+    module.exports = require('./src');
+} catch {
+    module.exports = require('./lib');
+}
