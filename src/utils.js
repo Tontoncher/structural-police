@@ -12,7 +12,16 @@ const checkIncludesVar = (node, path) => {
 const checkIncludesAny = (node) => {
     return !!node.__any__;
 };
-const findNodesRulesByPath = (path, schema, inheritance) => {
+const startsWithOneOf = (str, array) => {
+    for (const item of array) {
+        if (str.startsWith(item)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+export const findNodesRulesByPath = (path, schema, inheritance) => {
     const successfulPartsPathArray = [];
     const nodeVariables = {};
     let inheritedRules = null;
@@ -91,7 +100,7 @@ const findNodesRulesByPath = (path, schema, inheritance) => {
         },
     };
 };
-const isLocalPath = (str, entryPoints) => {
+export const isLocalPath = (str, entryPoints) => {
     const startLocalStr = ['.', ...entryPoints];
 
     for (const item of startLocalStr) {
@@ -102,7 +111,7 @@ const isLocalPath = (str, entryPoints) => {
 
     return false;
 };
-const getAbsPath = (file, path) => {
+export const getAbsPath = (file, path) => {
     if (!path.startsWith('.')) {
         return path;
     }
@@ -120,7 +129,7 @@ const getAbsPath = (file, path) => {
 
     return [...arrFile, ...arrPath].join('/');
 };
-const replaceVariables = (arrStr, variables) =>
+export const replaceVariables = (arrStr, variables) =>
     arrStr.map((item) => {
         if (item.includes('__var__')) {
             for (const variableName in variables) {
@@ -130,15 +139,7 @@ const replaceVariables = (arrStr, variables) =>
         }
         return item;
     });
-const startsWithOneOf = (str, array) => {
-    for (const item of array) {
-        if (str.startsWith(item)) {
-            return true;
-        }
-    }
-    return false;
-};
-const checkImportPermission = (
+export const checkImportPermission = (
     path,
     { defaultAllowed = false, allowed = [], disallowed = [], variables, everywhereAllowed = [] }
 ) => {
@@ -151,12 +152,4 @@ const checkImportPermission = (
 
     const replacedAllowed = replaceVariables(allowed, variables);
     return startsWithOneOf(path, replacedAllowed) || startsWithOneOf(path, everywhereAllowed);
-};
-
-module.exports = {
-    findNodesRulesByPath,
-    isLocalPath,
-    getAbsPath,
-    checkImportPermission,
-    replaceVariables,
 };

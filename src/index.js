@@ -1,6 +1,5 @@
-const rules = require('./rules');
-const defaultSchema = require('./schemas/default');
-const featureSlicedSchema = require('./schemas/featureSliced');
+import { rules } from './rules';
+import { defaultSchema, featureSlicedSchema } from './schemas';
 
 module.exports = {
     configs: {

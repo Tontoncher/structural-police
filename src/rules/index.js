@@ -1,7 +1,7 @@
-const noDefaultExport = require('./noDefaultExport');
-const importPermissionSchema = require('./importPermissionSchema');
+import { noDefaultExport } from './noDefaultExport';
+import { importPermissionSchema } from './importPermissionSchema';
 
-module.exports = {
+export const rules = {
     'no-default-export': {
         create: noDefaultExport,
     },

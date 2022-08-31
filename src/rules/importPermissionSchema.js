@@ -1,11 +1,11 @@
-const {
+import {
     findNodesRulesByPath,
     isLocalPath,
     getAbsPath,
     checkImportPermission,
-} = require('../utils');
+} from '../utils';
 
-module.exports = (context) => {
+export const importPermissionSchema = (context) => {
     const projectPath = context.getCwd();
     const filePath = context.getFilename().substr(projectPath.length + 1);
     const { schema = {}, inheritance = true, entryPoints = ['src'], everywhereAllowed = [] } = context.options[0];

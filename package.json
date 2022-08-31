@@ -1,7 +1,7 @@
 {
   "name": "eslint-plugin-structural-police",
-  "version": "1.0.4",
-  "main": "index.js",
+  "version": "1.0.5",
+  "main": "lib/index.js",
   "description": "eslint plugin to control file structure and imports",
   "author": {
     "name": "Anton Semenov",
@@ -9,7 +9,8 @@
   },
   "scripts": {
     "compile": "npx babel src --out-dir lib",
-    "publish": "npm run compile && npm publish"
+    "publish": "npm publish",
+    "test": "jest"
   },
   "keywords": [
     "structure",
@@ -28,7 +29,7 @@
   "devDependencies": {
     "@babel/cli": "^7.18.10",
     "@babel/core": "^7.18.13",
-    "@babel/preset-env": "^7.18.10"
-  },
-  "dependencies": {}
+    "@babel/preset-env": "^7.18.10",
+    "jest": "^29.0.1"
+  }
 }
