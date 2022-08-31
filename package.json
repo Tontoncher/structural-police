@@ -8,9 +8,12 @@
     "email": "tontoncher@yandex.ru"
   },
   "scripts": {
-    "compile": "npx babel src --out-dir lib",
+    "compile": "npx babel src -d lib",
     "publish": "npm publish",
     "test": "jest"
+  },
+  "jest": {
+    "testPathIgnorePatterns": ["src/__tests__/mocks"]
   },
   "keywords": [
     "structure",
@@ -30,6 +33,7 @@
     "@babel/cli": "^7.18.10",
     "@babel/core": "^7.18.13",
     "@babel/preset-env": "^7.18.10",
+    "@types/jest": "^29.0.0",
     "jest": "^29.0.1"
   }
 }

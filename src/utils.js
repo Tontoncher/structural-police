@@ -1,7 +1,7 @@
-const checkCompeteMatch = (node, path) => {
+export const checkCompeteMatch = (node, path) => {
     return path in node;
 };
-const checkIncludesVar = (node, path) => {
+export const checkIncludesVar = (node, path) => {
     for (const key in node) {
         if (key.startsWith('__var__')) {
             return { key, value: path };
