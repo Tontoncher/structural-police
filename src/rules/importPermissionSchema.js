@@ -3,12 +3,18 @@ import {
     isLocalPath,
     getAbsPath,
     checkImportPermission,
+    startsWithOneOf,
 } from '../utils';
 
 export const importPermissionSchema = (context) => {
     const projectPath = context.getCwd();
     const filePath = context.getFilename().substr(projectPath.length + 1);
-    const { schema = {}, inheritance = true, entryPoints = ['src'], everywhereAllowed = [] } = context.options[0];
+    const { schema = {}, inheritance = true, entryPoints = ['./'], everywhereAllowed = [] } = context.options[0];
+
+    if (!startsWithOneOf(filePath, entryPoints) && !entryPoints.includes('./')) {
+        return {}
+    }
+
     const nodesRules = findNodesRulesByPath(filePath, schema, inheritance);
     let isFileError = false;
     let fileRules = {};

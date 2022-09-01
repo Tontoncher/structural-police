@@ -12,7 +12,7 @@ export const checkIncludesVar = (node, path) => {
 const checkIncludesAny = (node) => {
     return !!node.__any__;
 };
-const startsWithOneOf = (str, array) => {
+export const startsWithOneOf = (str, array) => {
     for (const item of array) {
         if (str.startsWith(item)) {
             return true;
