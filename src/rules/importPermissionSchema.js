@@ -12,7 +12,7 @@ export const importPermissionSchema = (context) => {
     const { schema = {}, inheritance = true, entryPoints = ['./'], everywhereAllowed = [] } = context.options[0];
 
     if (!startsWithOneOf(filePath, entryPoints) && !entryPoints.includes('./')) {
-        return {}
+        return {};
     }
 
     const nodesRules = findNodesRulesByPath(filePath, schema, inheritance);

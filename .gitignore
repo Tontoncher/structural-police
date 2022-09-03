@@ -4,3 +4,4 @@
 /.idea/structural-police.iml
 /lib/
 /node_modules/
+/coverage/

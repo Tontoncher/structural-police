@@ -4,3 +4,4 @@
 /.gitignore
 /.npmignore
 /.idea/
+/coverage/

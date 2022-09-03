@@ -1,4 +1,4 @@
-import { checkCompeteMatch } from '../utils';
+import { checkCompeteMatch } from '../index';
 import { schema } from './mocks';
 
 describe('checkCompeteMatch', () => {
