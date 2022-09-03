@@ -1,3 +1,5 @@
+import { defaultErrorMessages } from '../constants';
+
 export const checkCompeteMatch = (node, path) => {
     return path in node;
 };
@@ -21,7 +23,7 @@ export const startsWithOneOf = (str = '', array = []) => {
     return false;
 };
 
-export const findNodesRulesByPath = (path, schema, inheritance) => {
+export const findNodesRulesByPath = (path, schema = {}, inheritance = true, errorMessages = defaultErrorMessages) => {
     const successfulPartsPathArray = [];
     const nodeVariables = {};
     let inheritedRules = null;
@@ -61,15 +63,12 @@ export const findNodesRulesByPath = (path, schema, inheritance) => {
                 continue;
             }
 
-            if (checkIncludesAny(node)) {
-                break;
+            if (!checkIncludesAny(node)) {
+                error = errorMessages.missingFile({
+                    schemaPath: successfulPartsPathArray.length === 0 ? 'root' : successfulPartsPathArray.join('/'),
+                    missingNode: pathItem,
+                });
             }
-
-            error = `The file is not described in the schema. In "${
-                successfulPartsPathArray.length === 0
-                    ? 'root'
-                    : successfulPartsPathArray.join('/')
-            }" expected a node "${pathItem}"`;
 
             break;
         }
@@ -88,7 +87,9 @@ export const findNodesRulesByPath = (path, schema, inheritance) => {
 
     if (!rules) {
         return {
-            error: `There is no set of rules in the "${successfulPartsPathArray.join('/')}"`,
+            error: errorMessages.missingRules({
+                schemaPath: successfulPartsPathArray.join('/'),
+            }),
         };
     }
 
@@ -134,23 +135,24 @@ export const replaceVariables = (arrStr, variables) =>
         }
         return item;
     });
+
 export const checkImportPermission = (
-    path,
+    importPath,
     {
         defaultAllowed = false,
         allowed = [],
         disallowed = [],
-        variables,
+        variables = {},
         everywhereAllowed = [],
-    }
+    },
 ) => {
     if (defaultAllowed) {
         const replacedDisallowed = replaceVariables(disallowed, variables);
         return (
-            !startsWithOneOf(path, replacedDisallowed) || startsWithOneOf(path, everywhereAllowed)
+            !startsWithOneOf(importPath, replacedDisallowed) || startsWithOneOf(importPath, everywhereAllowed)
         );
     }
 
     const replacedAllowed = replaceVariables(allowed, variables);
-    return startsWithOneOf(path, replacedAllowed) || startsWithOneOf(path, everywhereAllowed);
+    return startsWithOneOf(importPath, replacedAllowed) || startsWithOneOf(importPath, everywhereAllowed);
 };

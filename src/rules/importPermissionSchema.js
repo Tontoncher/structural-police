@@ -5,17 +5,25 @@ import {
     checkImportPermission,
     startsWithOneOf,
 } from '../utils';
+import { defaultErrorMessages } from '../constants';
 
 export const importPermissionSchema = (context) => {
     const projectPath = context.getCwd();
     const filePath = context.getFilename().substr(projectPath.length + 1);
-    const { schema = {}, inheritance = true, entryPoints = ['./'], everywhereAllowed = [] } = context.options[0];
+    const {
+        schema = {},
+        inheritance = true,
+        entryPoints = ['./'],
+        everywhereAllowed = [],
+        customErrorMessages = {},
+    } = context.options[0];
 
     if (!startsWithOneOf(filePath, entryPoints) && !entryPoints.includes('./')) {
         return {};
     }
 
-    const nodesRules = findNodesRulesByPath(filePath, schema, inheritance);
+    const errorMessages = { ...defaultErrorMessages, ...customErrorMessages };
+    const nodesRules = findNodesRulesByPath(filePath, schema, inheritance, errorMessages);
     let isFileError = false;
     let fileRules = {};
 
@@ -32,22 +40,26 @@ export const importPermissionSchema = (context) => {
             }
         },
         ImportDeclaration(node) {
-            const checkedPath = node.source.value;
+            const importPath = node.source.value;
 
             if (!isFileError) {
-                if (isLocalPath(checkedPath, entryPoints)) {
+                if (isLocalPath(importPath, entryPoints)) {
                     const permission = checkImportPermission(
-                        getAbsPath(filePath, checkedPath),
+                        getAbsPath(filePath, importPath),
                         fileRules
                     );
 
                     if (!permission) {
                         context.report({
                             node,
-                            message: `Not allowed to import from "${getAbsPath(
+                            message: errorMessages.importDisallow({
                                 filePath,
-                                checkedPath
-                            )}"`,
+                                importPath,
+                                absoluteImportPath: getAbsPath(
+                                    filePath,
+                                    importPath
+                                ),
+                            }),
                         });
                     }
                 }

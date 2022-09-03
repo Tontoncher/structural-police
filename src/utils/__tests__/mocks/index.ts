@@ -7,16 +7,23 @@ export const schema = {
     src: {
         pages: {
             __var__pageName: {
-                model: { __any__ },
+                model: {
+                    __rules__: {
+                        rulesNumber: 2,
+                    },
+                    __any__,
+                },
                 ui: {},
             },
         },
         features: {
             someFeature: {
                 __rules__: {
-                    rulesNumber: 2,
+                    rulesNumber: 3,
                 },
-            }
+                model: {},
+                ui: { __any__ },
+            },
         },
     },
     autotests: {},

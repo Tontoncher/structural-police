@@ -7,12 +7,14 @@ module.exports = {
         global: {
             functions: 50,
             lines: 50,
-            statements: 50,
         },
-        'src/utils/': {
+        'src/constants': {
             functions: 100,
-            lines: 100,
-            // statements: 100,
+            lines: 90,
+        },
+        'src/utils': {
+            functions: 100,
+            lines: 90,
         },
     },
 };

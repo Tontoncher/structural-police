@@ -9,12 +9,12 @@ const variables = {
 const pathArray = [
     'src/pages/mainPage/ui',
     'src/pages/__var__pageName/ui',
-    'apps/__var__appName/features/__var__featureName/model'
+    'apps/__var__appName/features/__var__featureName/model',
 ];
 const replacedPathArray = [
     'src/pages/mainPage/ui',
     'src/pages/somePage/ui',
-    'apps/someApp/features/someFeature/model'
+    'apps/someApp/features/someFeature/model',
 ];
 
 describe('replaceVariables', () => {
