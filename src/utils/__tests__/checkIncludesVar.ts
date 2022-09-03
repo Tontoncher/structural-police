@@ -1,4 +1,4 @@
-import { checkIncludesVar } from '../utils';
+import { checkIncludesVar } from '../index';
 import { schema } from './mocks';
 
 describe('checkIncludesVar', () => {

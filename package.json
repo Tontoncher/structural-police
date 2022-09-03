@@ -13,9 +13,6 @@
     "test": "jest",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx"
   },
-  "jest": {
-    "testPathIgnorePatterns": ["src/__tests__/mocks"]
-  },
   "keywords": [
     "structure",
     "feature",

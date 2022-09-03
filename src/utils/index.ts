@@ -9,10 +9,10 @@ export const checkIncludesVar = (node, path) => {
     }
     return false;
 };
-const checkIncludesAny = (node) => {
+export const checkIncludesAny = (node) => {
     return !!node.__any__;
 };
-export const startsWithOneOf = (str, array) => {
+export const startsWithOneOf = (str = '', array = []) => {
     for (const item of array) {
         if (str.startsWith(item)) {
             return true;
@@ -61,7 +61,7 @@ export const findNodesRulesByPath = (path, schema, inheritance) => {
                 continue;
             }
 
-            if (checkIncludesAny(node, pathItem)) {
+            if (checkIncludesAny(node)) {
                 break;
             }
 
@@ -100,23 +100,18 @@ export const findNodesRulesByPath = (path, schema, inheritance) => {
         },
     };
 };
-export const isLocalPath = (str, entryPoints) => {
+export const isLocalPath = (str, entryPoints = []) => {
     const startLocalStr = ['.', ...entryPoints];
 
-    for (const item of startLocalStr) {
-        if (str.startsWith(item)) {
-            return true;
-        }
+    return startsWithOneOf(str, startLocalStr);
+};
+export const getAbsPath = (filePath, importPath) => {
+    if (!isLocalPath(importPath)) {
+        return importPath;
     }
 
-    return false;
-};
-export const getAbsPath = (file, path) => {
-    if (!path.startsWith('.')) {
-        return path;
-    }
-    const arrFile = file.split('/');
-    const arrPath = path.split('/');
+    const arrFile = filePath.split('/');
+    const arrPath = importPath.split('/');
     arrFile.pop();
     if (arrPath[0] === '.') {
         arrPath.shift();
@@ -141,7 +136,13 @@ export const replaceVariables = (arrStr, variables) =>
     });
 export const checkImportPermission = (
     path,
-    { defaultAllowed = false, allowed = [], disallowed = [], variables, everywhereAllowed = [] }
+    {
+        defaultAllowed = false,
+        allowed = [],
+        disallowed = [],
+        variables,
+        everywhereAllowed = [],
+    }
 ) => {
     if (defaultAllowed) {
         const replacedDisallowed = replaceVariables(disallowed, variables);
