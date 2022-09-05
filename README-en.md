@@ -27,7 +27,7 @@ npm i eslint-plugin-structural-police
 ```
 
 # **Setting**
-Rule `import-permission-schema` takes 4 arguments:
+Rule `import-permission-schema` takes 5 arguments:
 
 1. `schema`:_object_ - Import validation scheme (more details in "Scheme")
 2. `inheritance`:_boolean_ - Rule inheritance. If the child node does not have its own
@@ -35,3 +35,20 @@ Rule `import-permission-schema` takes 4 arguments:
 3. `entryPoints`:_array of string_ - An array of paths to validated files
 4. `everywhereAllowed`:_array of string_ - An array of paths to files whose imports
    are always available
+5. `customErrorMessages`:_object_ - Object with callbacks generating error texts
+   (more details in "Custom error messages")
+
+# **Scheme**
+...in progress. And now you can see the Russian Readme
+
+# **Custom error messages**
+...in progress. And now you can see the Russian Readme
+
+## **Rules**
+...in progress. And now you can see the Russian Readme
+
+## !!! Important !!!
+...in progress. And now you can see the Russian Readme
+
+## !!! Interesting !!!
+...in progress. And now you can see the Russian Readme

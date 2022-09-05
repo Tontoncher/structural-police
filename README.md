@@ -27,15 +27,17 @@ npm i eslint-plugin-structural-police
 ```
 
 # **Настройка**
-Правило `import-permission-schema` принимает 4 аргумента:
+Правило `import-permission-schema` принимает 5 аргументов:
 
 1. `schema`:_object_ - Схема валидации импортов (подробнее в пункте "Схема")
 2. `inheritance`:_boolean_ - Наследование правил. Если у дочернего узла нет собственных
    правил, то будут применены правила ближайшего родителя
 3. `entryPoints`:_array of string_ - Массив путей до валидируемых файлов
 4. `everywhereAllowed`:_array of string_ - Массив путей до файлов, импорт которых всегда доступен
+5. `customErrorMessages`:_object_ - Объект с колбэками, формирующими тексты
+   ошибок (подробнее в пункте "Кастомные сообщения ошибок")
 
-# **Схема**
+## **Схема**
 Схема описывает структуру проекта, по которой линтер будет проверять корректность расположения
 файлов и возможность осуществления импортов.
 
@@ -66,6 +68,29 @@ apps: {
 
 Поиск правил для файла `apps/app-a/index.ts`: Зашли в `apps`, не нашли объект
 `app-a`, поэтому зашли в первый попавшийся `__var__<variable_name>`, если такой есть
+
+# **Кастомные сообщения ошибок**
+Если есть желание изменить тексты ошибок выбрасываемых линтом, то можно сделать это, передав
+в аргумент `customErrorMessages` объект со своими колбэками.
+В правиле есть три типа ошибок `importDisallow`, `missingFile` и `missingRules`, каждый из
+которых вызывается при разных проблемах:
+1. `importDisallow` вызывается если в файле найден импорт из запрещенного правилами (схемой) источника
+2. `missingFile` вызывается если проверяемый файл не описан в схеме
+3. `missingRules` вызывается для проверяемого файла в схеме не найдены правила 
+
+Ниже приведен объект с дефолтными колбэками, тут же можно посмотреть какие аргументы должны принимать колбэки
+```
+const defaultErrorMessages = {
+   importDisallow: ({ filePath, importPath, absoluteImportPath }) =>
+      `Not allowed to import from "${absoluteImportPath}"`,
+   
+   missingFile: ({ schemaPath, missingNode }) =>
+      `The file is not described in the schema. In "${schemaPath}" expected a node "${missingNode}"`,
+   
+   missingRules: ({ schemaPath }) =>
+      `There is no set of rules in the "${schemaPath}"`,
+}
+```
 
 # **Правила**
 
