@@ -156,3 +156,6 @@ export const checkImportPermission = (
     const replacedAllowed = replaceVariables(allowed, variables);
     return startsWithOneOf(importPath, replacedAllowed) || startsWithOneOf(importPath, everywhereAllowed);
 };
+export const replaceBackSlash = (str) => {
+    return str.replace(/\\/g, '/');
+};

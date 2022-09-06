@@ -1,7 +1,7 @@
 import { checkIncludesAny } from '../index';
 import { schema } from './mocks';
 
-describe('checkIncludesVar', () => {
+describe('checkIncludesAny', () => {
     it('Передаем в "node" узел в котором есть __any__', () => {
         expect(checkIncludesAny(schema.src.pages.__var__pageName.model)).toBe(true);
     });

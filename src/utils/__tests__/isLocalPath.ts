@@ -1,6 +1,6 @@
 import { isLocalPath } from '../index';
 
-describe('startsWithOneOf', () => {
+describe('isLocalPath', () => {
     it('Адрес начинается с .', () => {
         expect(isLocalPath('./src/utils', ['dist', 'packages', 'src'])).toBe(true);
     });

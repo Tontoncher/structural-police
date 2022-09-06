@@ -4,12 +4,13 @@ import {
     getAbsPath,
     checkImportPermission,
     startsWithOneOf,
+    replaceBackSlash,
 } from '../utils';
 import { defaultErrorMessages } from '../constants';
 
 export const importPermissionSchema = (context) => {
     const projectPath = context.getCwd();
-    const filePath = context.getFilename().substr(projectPath.length + 1);
+    const filePath = replaceBackSlash(context.getFilename().substr(projectPath.length + 1));
     const {
         schema = {},
         inheritance = true,
