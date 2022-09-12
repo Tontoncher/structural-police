@@ -159,3 +159,175 @@ export const checkImportPermission = (
 export const replaceBackSlash = (str) => {
     return str.replace(/\\/g, '/');
 };
+
+export const separateImportsByImportPathMatch = (importsArray, importPathMatch) => {
+    const regexp = new RegExp(importPathMatch);
+    const resolvedImports = [];
+    const rejectedImports = [];
+
+    for (const item of importsArray) {
+        if (regexp.test(item.importPath)) {
+            resolvedImports.push(item);
+        } else {
+            rejectedImports.push(item);
+        }
+    }
+
+    return { resolvedImports, rejectedImports };
+};
+export const getGroupsWithImports = (importsArray, groups) => {
+    const numberedGroups = groups.map((item, i) => (
+        {
+            ...item,
+            number: i,
+            imports: [],
+            priority: (item.priority === undefined || !(item.priority instanceof Number)) ? 1 : item.priority,
+            importPathMatch: item.importPathMatch === undefined ? /^/ : item.importPathMatch,
+        }
+    ));
+    const prioritySortedGroups = numberedGroups.sort((a, b) => a.priority > b.priority ? -1 : 1);
+    let restImports = [...importsArray];
+
+    prioritySortedGroups.forEach(groupsMember => {
+        const { resolvedImports, rejectedImports } = separateImportsByImportPathMatch(restImports, groupsMember.importPathMatch);
+        groupsMember.imports = resolvedImports;
+        restImports = rejectedImports;
+    });
+
+    // Если остались не распределенные импорты создаем для них отдельную группу вконце
+    if (restImports.length > 0) {
+        prioritySortedGroups.push({
+            name: '__default__',
+            number: prioritySortedGroups.length,
+            imports: restImports,
+        });
+    }
+
+    const numberSortedGroups = prioritySortedGroups.sort((a, b) => a.number < b.number ? -1 : 1);
+
+    numberSortedGroups.forEach((group) => {
+        const groupLength = group.imports.length;
+
+        group.imports.forEach((importItem, importIndex) => {
+            if (group.name) {
+                importItem.groupName = group.name;
+            }
+            if (importIndex === 0) {
+                importItem.isFirstInGroup = true;
+            }
+            if ((importIndex === groupLength - 1)) {
+                importItem.isLastInGroup = true;
+                importItem.blankLineAfterGroup = group.blankLineAfter;
+            }
+        });
+    });
+
+    return numberSortedGroups;
+};
+export const groupsToFlat = (groups) => {
+    let flatImports = [];
+    for (const group of groups) {
+        flatImports = [...flatImports, ...group.imports];
+    }
+
+    return flatImports;
+};
+export const getCommentsRange = (tokensArray = []) => {
+    if (tokensArray instanceof Array && tokensArray.length > 0) {
+        return [ tokensArray[0].range[0], tokensArray[tokensArray.length-1].range[1] ];
+    }
+
+    return undefined;
+};
+export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNamePrefix) => {
+    const flatImports = groupsToFlat(groups);
+    const orderErrorsArray = [];
+    const blankLineErrorsArray = [];
+    const groupsNameErrorArray = [];
+
+    for (let i = 0; i < flatImports.length; i++) {
+        const currentImport = flatImports[i];
+        const nextTwoSymbolRange = [currentImport.node.range[1], currentImport.node.range[1] + 2];
+        const nextBlankLine = sourceCode.getText({ range: nextTwoSymbolRange }) === '\n\n';
+        const needNextBlankLine = currentImport.isLastInGroup && (blankLineAfterEveryGroup || currentImport.blankLineAfterGroup);
+        const relatedComments = sourceCode.getCommentsBefore(currentImport.node);
+        const rightCommentWithGroupName = currentImport.groupName ? `//${groupNamePrefix}${currentImport.groupName}` : null;
+        const needCommentWithGroupName = currentImport.isFirstInGroup && currentImport.groupName;
+        let hasRightCommentWithGroupName = false;
+
+        // Проверка на ошибки порядка
+        if (i > 0 && flatImports[i-1].line > currentImport.line) {
+            orderErrorsArray.push({
+                node: currentImport.node,
+                import: currentImport,
+                mustBeAfter: flatImports[i-1],
+            });
+        }
+
+        // Проверка на ошибки пустой строки после группы
+        if (!needNextBlankLine !== !nextBlankLine) {
+            if (needNextBlankLine) {
+                blankLineErrorsArray.push({
+                    node: currentImport.node,
+                    importPath: currentImport.importPath,
+                    needAddBlankLineAfter: true,
+                    groupName: currentImport.groupName,
+                });
+            } else {
+                blankLineErrorsArray.push({
+                    node: currentImport.node,
+                    importPath: currentImport.importPath,
+                    needDeleteBlankLineAfter: true,
+                    groupName: currentImport.groupName,
+                });
+            }
+        }
+
+        // Проверка на ошибки названия группы
+        if (relatedComments.length > 0) {
+            for (const currentComment of relatedComments) {
+                const currentCommentText = sourceCode.getText(currentComment);
+                const prefixRegExp = new RegExp(`^//${groupNamePrefix}`);
+
+                if (prefixRegExp.test(currentCommentText)) {
+                    if (currentCommentText === rightCommentWithGroupName) {
+                        hasRightCommentWithGroupName = true;
+                    }
+                    if (!needCommentWithGroupName || (currentCommentText !== rightCommentWithGroupName)) {
+                        groupsNameErrorArray.push({
+                            importPath: currentImport.importPath,
+                            loc: currentComment.loc,
+                            needDeleteComment: true,
+                            comment: currentComment,
+                        });
+                    }
+                }
+            }
+        }
+        if (needCommentWithGroupName && !hasRightCommentWithGroupName) {
+            if (relatedComments.length > 0) {
+                groupsNameErrorArray.push({
+                    loc: relatedComments[0].loc,
+                    needAddCommentBefore: true,
+                    range: getCommentsRange(relatedComments),
+                    groupName: currentImport.groupName,
+                    newCommentText: rightCommentWithGroupName,
+                });
+            } else {
+                groupsNameErrorArray.push({
+                    loc: currentImport.node.loc,
+                    needAddCommentBefore: true,
+                    range: currentImport.node.range,
+                    groupName: currentImport.groupName,
+                    newCommentText: rightCommentWithGroupName,
+                });
+            }
+        }
+    }
+
+    return {
+        orderErrors: orderErrorsArray.length === 0 ? false : orderErrorsArray,
+        blankLineErrors: blankLineErrorsArray.length === 0 ? false : blankLineErrorsArray,
+        groupsNameError: groupsNameErrorArray.length === 0 ? false : groupsNameErrorArray,
+    };
+};
