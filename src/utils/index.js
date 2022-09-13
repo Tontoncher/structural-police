@@ -181,7 +181,7 @@ export const getGroupsWithImports = (importsArray, groups) => {
             ...item,
             number: i,
             imports: [],
-            priority: (item.priority === undefined || !(item.priority instanceof Number)) ? 1 : item.priority,
+            priority: item.priority === undefined ? 1 : item.priority,
             importPathMatch: item.importPathMatch === undefined ? /^/ : item.importPathMatch,
         }
     ));
