@@ -1,7 +1,9 @@
-import {getGroupsWithImports, errorCheck, getCommentsRange } from '../utils';
+import { getGroupsWithImports, errorCheck, getCommentsRange, replaceBackSlash } from '../utils';
 import { defaultErrorMessages } from '../constants';
 
 export const importOrder = (context) => {
+    const projectPath = context.getCwd();
+    const filePath = replaceBackSlash(context.getFilename().substr(projectPath.length + 1));
     const sourceCode = context.getSourceCode();
     let {
         groups = [],
@@ -27,7 +29,7 @@ export const importOrder = (context) => {
         },
         onCodePathEnd(codePath, node) {
             if (node.type === 'Program') {
-                const groupsWithImports = getGroupsWithImports(importsArray, groups);
+                const groupsWithImports = getGroupsWithImports(importsArray, filePath, groups);
                 const { orderErrors, blankLineErrors, groupsNameError } =  errorCheck(groupsWithImports, sourceCode, blankLineAfterEveryGroup, groupNamePrefix);
 
                 if (orderErrors) {

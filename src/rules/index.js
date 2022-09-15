@@ -11,5 +11,6 @@ export const rules = {
     },
     'import-order': {
         create: importOrder,
+        meta: { fixable: true, hasSuggestions: true },
     },
 };

@@ -160,13 +160,28 @@ export const replaceBackSlash = (str) => {
     return str.replace(/\\/g, '/');
 };
 
-export const separateImportsByImportPathMatch = (importsArray, importPathMatch) => {
-    const regexp = new RegExp(importPathMatch);
+export const separateImportsByImportPathMatch = (importsArray, filePath, { importPathMatch, importAbsPathMatch }) => {
+    const importPathRegExp = new RegExp(importPathMatch);
+    const importAbsPathRegExp = new RegExp(importAbsPathMatch);
     const resolvedImports = [];
     const rejectedImports = [];
 
     for (const item of importsArray) {
-        if (regexp.test(item.importPath)) {
+        const importAbsPath = getAbsPath(filePath, item.importPath)
+
+        const isMatched = (() => {
+            switch (true) {
+                case (importPathMatch && importPathRegExp.test(item.importPath)):
+                case (importAbsPathMatch && importAbsPathRegExp.test(importAbsPath)):
+                    return true;
+                default:
+                    return false;
+            }
+        })()
+
+        item.importAbsPath = importAbsPath
+
+        if (isMatched) {
             resolvedImports.push(item);
         } else {
             rejectedImports.push(item);
@@ -175,21 +190,23 @@ export const separateImportsByImportPathMatch = (importsArray, importPathMatch) 
 
     return { resolvedImports, rejectedImports };
 };
-export const getGroupsWithImports = (importsArray, groups) => {
+export const getGroupsWithImports = (importsArray, filePath, groups) => {
     const numberedGroups = groups.map((item, i) => (
         {
             ...item,
             number: i,
             imports: [],
             priority: item.priority === undefined ? 1 : item.priority,
-            importPathMatch: item.importPathMatch === undefined ? /^/ : item.importPathMatch,
         }
     ));
     const prioritySortedGroups = numberedGroups.sort((a, b) => a.priority > b.priority ? -1 : 1);
     let restImports = [...importsArray];
 
     prioritySortedGroups.forEach(groupsMember => {
-        const { resolvedImports, rejectedImports } = separateImportsByImportPathMatch(restImports, groupsMember.importPathMatch);
+        const { resolvedImports, rejectedImports } = separateImportsByImportPathMatch(restImports, filePath, {
+            importPathMatch: groupsMember.importPathMatch,
+            importAbsPathMatch: groupsMember.importAbsPathMatch,
+        });
         groupsMember.imports = resolvedImports;
         restImports = rejectedImports;
     });
