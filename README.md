@@ -37,18 +37,25 @@ _____
 ## import-order
 
 ### Настройка
-Правило `import-order` принимает 5 аргументов:
+Правило `import-order` принимает 7 аргументов:
 
 1. `groups`:_array of object_ - Массив групп импортов (подробнее в пункте "Группы")
 2. `behaviorRelatedComment`:_string_ - Вариант поведения комментариев, находящихся
    непосредственно перед импортов при использовании функции автофикса (флаг --fix).
    При значении `link` (default value) все комментарии перемещаются вместе с импортом.
-   При значении `delete` все комментарии удаляются
+   При значении `remove` все комментарии удаляются
 3. `blankLineAfterEveryGroup`:_boolean_ - Нужно ли после каждой группы импортов
    вставлять пустую строку (default value: false)
 4. `groupNamePrefix`:_string_ - Префикс необходимый, чтобы отличать обычные комментарии
    от названий групп импортов (default value: ' # '). Например: `// # GroupName`
-5. `customErrorMessages`:_object_ - Объект с колбэками, формирующими тексты
+5. `oldGroupNamePrefix`:_string_ - Префикс, необходимый при изменении настройки `groupNamePrefix`,
+   чтобы удалить названия групп со старым префиксом
+6. `withinGroupSort`:_array of string_ - Массив строк формирующих регулярные выражения, в порядке
+   которых будут сортироваться пути импортов внутри групп. То есть передав `['^([A-Z]|[a-z])', '^[.]']`
+   внутри группы будут идти сначала импорты начинающиеся с букв, а потом - с точки. При использовании
+   этой настройки все импорты внутри группы будут отсортированы по алфавиту. Если нужно включить
+   только сортировку по алфавиту, то нужно передать массив с одной регуляркой - `['^']`
+7. `customErrorMessages`:_object_ - Объект с колбэками, формирующими тексты
    ошибок (подробнее в пункте "Кастомные сообщения ошибок")
 
 ### Группы
@@ -57,16 +64,21 @@ _____
 - `name`. Если есть `name`, то перед этой группой необходим комментарий с названием группы
 - `priority` отвечает за приоритет разбора импортов по группам. То есть если импорт удовлетворяет
    условиям двух групп, то он будет размещен в групу с наивысшим приоритетом (default value: 1)
-- `importPathMatch` содержит регулярное выражение по которому проверяется импортируемый путь (default value: /^/)
 - `blankLineAfter` отвечает за наличие пустой строки после группы (default value: false)
+- `importPathMatch` содержит регулярное выражение или строку для формирования регулярного
+   выражения (без флагов), по которому проверяется импортируемый путь
+- `importAbsPathMatch` содержит регулярное выражение или строку для формирования регулярного
+   выражения (без флагов), по которому проверяется абсолютный путь до импортируемого файла.
+   То есть находясь в файле `src/feature/index.ts` и импортируя из `../ui/form.ts`, по регулярному
+   выражению `importAbsPathMatch` будет проверяться путь `src/ui/form.ts`
 
 Пример
 ```js
 groups: [
-   {                  priority: 0, importPathMatch: /^/,      blankLineAfter: true },
-   { name: 'actions', priority: 2, importPathMatch: /Action/, blankLineAfter: false },
-   { name: 'stores',  priority: 2, importPathMatch: /Store/ },
-   { name: 'styles',  priority: 1, importPathMatch: /.css$/,  blankLineAfter: true },
+   {                  priority: 0, importPathMatch: /^/,         blankLineAfter: true },
+   { name: 'actions', priority: 2, importAbsPathMatch: /Action/, blankLineAfter: false },
+   { name: 'stores',  priority: 2, importAbsPathMatch: /Store/ },
+   { name: 'styles',  priority: 1, importPathMatch: /.css$/,     blankLineAfter: true },
 ]
 ```
 

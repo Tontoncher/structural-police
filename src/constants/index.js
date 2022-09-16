@@ -5,7 +5,7 @@ export const defaultErrorMessages = {
 
     mustBeAfter: ({ mustBeAfterImportPath }) => `This import must be after import from "${mustBeAfterImportPath}"`,
     blankLineDetected: ({ importPath }) => `Must not be blank line after import from "${importPath}"`,
-    blankLineExpected: ({ groupName }) => `Need blank line after imports group "${groupName}"`,
-    needAddComment: ({ groupName, newComment }) => `Before imports group "${groupName}" must be comment with groups name "${newComment}"`,
+    blankLineExpected: ({ groupName }) => `Need blank line after imports group "${groupName || 'unnamedGroup'}"`,
+    needAddComment: ({ groupName, newComment }) => `Before imports group "${groupName || 'unnamedGroup'}" must be comment with groups name "${newComment}"`,
     needRemoveComment: () => 'Need remove wrong groups name',
 };

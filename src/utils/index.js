@@ -161,25 +161,21 @@ export const replaceBackSlash = (str) => {
 };
 
 export const separateImportsByImportPathMatch = (importsArray, filePath, { importPathMatch, importAbsPathMatch }) => {
-    const importPathRegExp = new RegExp(importPathMatch);
-    const importAbsPathRegExp = new RegExp(importAbsPathMatch);
     const resolvedImports = [];
     const rejectedImports = [];
 
     for (const item of importsArray) {
-        const importAbsPath = getAbsPath(filePath, item.importPath)
+        item.importAbsPath = getAbsPath(filePath, item.importPath);
 
         const isMatched = (() => {
             switch (true) {
-                case (importPathMatch && importPathRegExp.test(item.importPath)):
-                case (importAbsPathMatch && importAbsPathRegExp.test(importAbsPath)):
+                case (importPathMatch && new RegExp(importPathMatch).test(item.importPath)):
+                case (importAbsPathMatch && new RegExp(importAbsPathMatch).test(item.importAbsPath)):
                     return true;
                 default:
                     return false;
             }
-        })()
-
-        item.importAbsPath = importAbsPath
+        })();
 
         if (isMatched) {
             resolvedImports.push(item);
@@ -190,7 +186,35 @@ export const separateImportsByImportPathMatch = (importsArray, filePath, { impor
 
     return { resolvedImports, rejectedImports };
 };
-export const getGroupsWithImports = (importsArray, filePath, groups) => {
+export const getSortedImports = (importsArray, withinGroupSort) => {
+    if (withinGroupSort === undefined || !(withinGroupSort instanceof Array)) {
+        return importsArray;
+    }
+
+    let restImports = [...importsArray].sort((a, b) => {
+        return a.importPath > b.importPath ? 1 : -1;
+    });
+    const groupedImportsArray = [];
+
+    withinGroupSort.forEach((sorter) => {
+        const localRestImports = [];
+        const regexp = new RegExp(sorter);
+
+        restImports.forEach((importItem) => {
+            if (regexp.test(importItem.importPath)) {
+                groupedImportsArray.push(importItem);
+            } else {
+                localRestImports.push(importItem);
+            }
+        });
+
+        restImports = localRestImports;
+    });
+    groupedImportsArray.push(...restImports);
+
+    return groupedImportsArray;
+};
+export const getGroupsWithImports = (importsArray, filePath, groups, withinGroupSort) => {
     const numberedGroups = groups.map((item, i) => (
         {
             ...item,
@@ -207,7 +231,7 @@ export const getGroupsWithImports = (importsArray, filePath, groups) => {
             importPathMatch: groupsMember.importPathMatch,
             importAbsPathMatch: groupsMember.importAbsPathMatch,
         });
-        groupsMember.imports = resolvedImports;
+        groupsMember.imports = getSortedImports(resolvedImports, withinGroupSort);
         restImports = rejectedImports;
     });
 
@@ -256,11 +280,12 @@ export const getCommentsRange = (tokensArray = []) => {
 
     return undefined;
 };
-export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNamePrefix) => {
+export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNamePrefix, oldGroupNamePrefix) => {
     const flatImports = groupsToFlat(groups);
     const orderErrorsArray = [];
     const blankLineErrorsArray = [];
     const groupsNameErrorArray = [];
+    const allImports = [];
 
     for (let i = 0; i < flatImports.length; i++) {
         const currentImport = flatImports[i];
@@ -305,6 +330,7 @@ export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNa
             for (const currentComment of relatedComments) {
                 const currentCommentText = sourceCode.getText(currentComment);
                 const prefixRegExp = new RegExp(`^//${groupNamePrefix}`);
+                const oldPrefixRegExp = new RegExp(`^//${oldGroupNamePrefix}`);
 
                 if (prefixRegExp.test(currentCommentText)) {
                     if (currentCommentText === rightCommentWithGroupName) {
@@ -318,6 +344,14 @@ export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNa
                             comment: currentComment,
                         });
                     }
+                }
+                if (oldGroupNamePrefix && oldPrefixRegExp.test(currentCommentText)) {
+                    groupsNameErrorArray.push({
+                        importPath: currentImport.importPath,
+                        loc: currentComment.loc,
+                        needDeleteComment: true,
+                        comment: currentComment,
+                    });
                 }
             }
         }
@@ -340,6 +374,13 @@ export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNa
                 });
             }
         }
+
+        allImports.push({
+            loc: currentImport.node.loc,
+            importPath: currentImport.importPath,
+            importAbsPath: currentImport.importAbsPath,
+            group: currentImport.groupName,
+        });
     }
 
     return {

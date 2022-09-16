@@ -11,11 +11,13 @@ export const importOrder = (context) => {
         blankLineAfterEveryGroup = false,
         customErrorMessages = {},
         groupNamePrefix = ' # ',
+        oldGroupNamePrefix,
+        withinGroupSort,
     } = context.options[0];
     const errorMessages = { ...defaultErrorMessages, ...customErrorMessages };
     let importsArray = [];
 
-    if (!(['link', 'delete'].includes(behaviorRelatedComment))) {
+    if (!(['link', 'remove'].includes(behaviorRelatedComment))) {
         behaviorRelatedComment = 'link';
     }
 
@@ -29,8 +31,8 @@ export const importOrder = (context) => {
         },
         onCodePathEnd(codePath, node) {
             if (node.type === 'Program') {
-                const groupsWithImports = getGroupsWithImports(importsArray, filePath, groups);
-                const { orderErrors, blankLineErrors, groupsNameError } =  errorCheck(groupsWithImports, sourceCode, blankLineAfterEveryGroup, groupNamePrefix);
+                const groupsWithImports = getGroupsWithImports(importsArray, filePath, groups, withinGroupSort);
+                const { orderErrors, blankLineErrors, groupsNameError } =  errorCheck(groupsWithImports, sourceCode, blankLineAfterEveryGroup, groupNamePrefix, oldGroupNamePrefix );
 
                 if (orderErrors) {
                     for (let error of orderErrors) {
