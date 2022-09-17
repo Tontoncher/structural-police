@@ -214,7 +214,28 @@ export const getSortedImports = (importsArray, withinGroupSort) => {
 
     return groupedImportsArray;
 };
-export const getGroupsWithImports = (importsArray, filePath, groups, withinGroupSort) => {
+export const getCommentsRange = (tokensArray = []) => {
+    if (tokensArray instanceof Array && tokensArray.length > 0) {
+        return [ tokensArray[0].range[0], tokensArray[tokensArray.length-1].range[1] ];
+    }
+
+    return undefined;
+};
+export const getCommentsText = (sourceCode, tokensArray, prefix) => {
+    const prefixRegExp = new RegExp(`^//${prefix}`);
+    const comments = [];
+
+    for (const currentComment of tokensArray) {
+        const currentCommentText = sourceCode.getText(currentComment);
+
+        if (!prefixRegExp.test(currentCommentText)) {
+            comments.push(`${currentCommentText}\n`);
+        }
+    }
+
+    return comments.join('');
+};
+export const getGroupsWithImports = (importsArray, sourceCode, filePath, groups, withinGroupSort, groupNamePrefix) => {
     const numberedGroups = groups.map((item, i) => (
         {
             ...item,
@@ -250,6 +271,14 @@ export const getGroupsWithImports = (importsArray, filePath, groups, withinGroup
         const groupLength = group.imports.length;
 
         group.imports.forEach((importItem, importIndex) => {
+            const relatedComments = sourceCode.getCommentsBefore(importItem.node);
+            if (relatedComments.length > 0) {
+                importItem.relatedCommentsText = getCommentsText(sourceCode, relatedComments, groupNamePrefix);
+                importItem.relatedCommentsRange = getCommentsRange(relatedComments);
+            }
+
+            importItem.text = sourceCode.getText(importItem.node);
+
             if (group.name) {
                 importItem.groupName = group.name;
             }
@@ -273,19 +302,11 @@ export const groupsToFlat = (groups) => {
 
     return flatImports;
 };
-export const getCommentsRange = (tokensArray = []) => {
-    if (tokensArray instanceof Array && tokensArray.length > 0) {
-        return [ tokensArray[0].range[0], tokensArray[tokensArray.length-1].range[1] ];
-    }
-
-    return undefined;
-};
 export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNamePrefix, oldGroupNamePrefix) => {
     const flatImports = groupsToFlat(groups);
     const orderErrorsArray = [];
     const blankLineErrorsArray = [];
     const groupsNameErrorArray = [];
-    const allImports = [];
 
     for (let i = 0; i < flatImports.length; i++) {
         const currentImport = flatImports[i];
@@ -374,13 +395,6 @@ export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNa
                 });
             }
         }
-
-        allImports.push({
-            loc: currentImport.node.loc,
-            importPath: currentImport.importPath,
-            importAbsPath: currentImport.importAbsPath,
-            group: currentImport.groupName,
-        });
     }
 
     return {
