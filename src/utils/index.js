@@ -192,6 +192,10 @@ export const getSortedImports = (importsArray, withinGroupSort) => {
     }
 
     let restImports = [...importsArray].sort((a, b) => {
+        if (a.importPath === b.importPath) {
+            return 0
+        }
+
         return a.importPath > b.importPath ? 1 : -1;
     });
     const groupedImportsArray = [];
