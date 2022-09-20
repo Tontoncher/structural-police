@@ -103,12 +103,12 @@ export const importOrder = (context) => {
                             message: (() => {
                                 switch (true) {
                                     case error.needAddBlankLineAfter:
-                                        return errorMessages.blankLineDetected({
+                                        return errorMessages.blankLineExpected({
                                             importPath: error.importPath,
                                             groupName: error.groupName,
                                         });
                                     case error.needDeleteBlankLineAfter:
-                                        return errorMessages.blankLineExpected({
+                                        return errorMessages.blankLineDetected({
                                             importPath: error.importPath,
                                             groupName: error.groupName,
                                         });
