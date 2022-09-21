@@ -306,11 +306,24 @@ export const groupsToFlat = (groups) => {
 
     return flatImports;
 };
+export const getBlankLineCountAfterRange = (sourceCode, afterRange) => {
+    const startPosition = afterRange[1];
+    const regexp = new RegExp('^(\\n)+$');
+
+    let count = 0;
+
+    while (regexp.test(sourceCode.getText({ range: [startPosition, startPosition + count + 2] }))) {
+        count += 1;
+    }
+
+    return count;
+};
 export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNamePrefix, oldGroupNamePrefix) => {
     const flatImports = groupsToFlat(groups);
     const orderErrorsArray = [];
     const blankLineErrorsArray = [];
     const groupsNameErrorArray = [];
+    const blankLineCountErrorsArray = [];
 
     for (let i = 0; i < flatImports.length; i++) {
         const currentImport = flatImports[i];
@@ -321,11 +334,13 @@ export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNa
         const rightCommentWithGroupName = currentImport.groupName ? `//${groupNamePrefix}${currentImport.groupName}` : null;
         const needCommentWithGroupName = currentImport.isFirstInGroup && currentImport.groupName;
         let hasRightCommentWithGroupName = false;
+        const blankLineCount = getBlankLineCountAfterRange(sourceCode, currentImport.node.range);
 
         // Проверка на ошибки порядка
         if (i > 0 && flatImports[i-1].line > currentImport.line) {
             orderErrorsArray.push({
                 node: currentImport.node,
+                loc: currentImport.node.loc,
                 import: currentImport,
                 mustBeAfter: flatImports[i-1],
             });
@@ -336,6 +351,7 @@ export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNa
             if (needNextBlankLine) {
                 blankLineErrorsArray.push({
                     node: currentImport.node,
+                    loc: currentImport.node.loc,
                     importPath: currentImport.importPath,
                     needAddBlankLineAfter: true,
                     groupName: currentImport.groupName,
@@ -343,6 +359,7 @@ export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNa
             } else {
                 blankLineErrorsArray.push({
                     node: currentImport.node,
+                    loc: currentImport.node.loc,
                     importPath: currentImport.importPath,
                     needDeleteBlankLineAfter: true,
                     groupName: currentImport.groupName,
@@ -399,11 +416,21 @@ export const errorCheck = (groups, sourceCode, blankLineAfterEveryGroup, groupNa
                 });
             }
         }
+
+        // Проверка колличества пустых строк
+        if (blankLineCount > 1) {
+            blankLineCountErrorsArray.push({
+                loc: currentImport.node.loc,
+                range: currentImport.node.range,
+                count: blankLineCount,
+            });
+        }
     }
 
     return {
         orderErrors: orderErrorsArray.length === 0 ? false : orderErrorsArray,
         blankLineErrors: blankLineErrorsArray.length === 0 ? false : blankLineErrorsArray,
         groupsNameError: groupsNameErrorArray.length === 0 ? false : groupsNameErrorArray,
+        blankLineCountErrors: blankLineCountErrorsArray.length === 0 ? false : blankLineCountErrorsArray,
     };
 };
